@@ -10,7 +10,8 @@ class BookFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        BookFactory::new()->createMany(10);
+        BookFactory::new()->createMany(2);
+
         $manager->flush();
     }
 }
