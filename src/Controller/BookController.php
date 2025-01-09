@@ -23,7 +23,7 @@ class BookController extends AbstractController
     public function getBookList(): JsonResponse
     {
         $books = $this->bookRepository->findAll();
-        $jsonBookList = $this->serializer->serialize($books, 'json');
+        $jsonBookList = $this->serializer->serialize($books, 'json', ['groups' => 'getBooks']);
 
         return new JsonResponse(data: $jsonBookList, status: Response::HTTP_OK, headers: [], json: true);
     }
@@ -37,7 +37,7 @@ class BookController extends AbstractController
          return new JsonResponse(data: ['message' => 'Book not found'], status: Response::HTTP_NOT_FOUND);
      }
 
-     $jsonBook = $this->serializer->serialize($book, 'json');
+     $jsonBook = $this->serializer->serialize($book, 'json', ['groups' => 'getBooks']);
 
      return new JsonResponse(data: $jsonBook, status: Response::HTTP_OK, headers: [], json: true);
     }
