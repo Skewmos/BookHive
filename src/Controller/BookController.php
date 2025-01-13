@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\BookRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,9 +13,13 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[Route('/api/books')]
 class BookController extends AbstractController
 {
+    private const BOOK_DELETED = 'Book deleted';
+    private const BOOK_NOT_FOUND = 'Book not found';
+
     public function __construct(
-        private readonly BookRepository $bookRepository,
-        private readonly SerializerInterface $serializer
+        private readonly BookRepository         $bookRepository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly SerializerInterface    $serializer
     )
     {
     }
@@ -34,11 +39,26 @@ class BookController extends AbstractController
      $book = $this->bookRepository->find($id);
 
      if (!$book) {
-         return new JsonResponse(data: ['message' => 'Book not found'], status: Response::HTTP_NOT_FOUND);
+         return new JsonResponse(data: ['message' => self::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
      }
 
      $jsonBook = $this->serializer->serialize($book, 'json', ['groups' => 'getBooks']);
 
      return new JsonResponse(data: $jsonBook, status: Response::HTTP_OK, headers: [], json: true);
+    }
+
+    #[Route('/{id}', name: 'api_book_delete', methods: ['DELETE'])]
+    public function deleteBook(int $id): JsonResponse
+    {
+        $book = $this->bookRepository->find($id);
+
+        if (!$book) {
+            return new JsonResponse(data: ['message' => self::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
+        }
+
+        $this->entityManager->remove($book);
+        $this->entityManager->flush();
+
+        return new JsonResponse(data: ['message' => self::BOOK_DELETED], status: Response::HTTP_OK);
     }
 }
