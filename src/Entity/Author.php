@@ -32,7 +32,7 @@ class Author
     /**
      * @var Collection<int, Book>
      */
-    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'author')]
+    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'author', cascade: ['remove'], orphanRemoval: true)]
     #[Groups(['getAuthors'])]
     private Collection $books;
 
