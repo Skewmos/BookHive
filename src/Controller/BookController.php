@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/books')]
 class BookController extends AbstractController
@@ -26,7 +28,8 @@ class BookController extends AbstractController
         private readonly AuthorRepository       $authorRepository,
         private readonly BookRepository         $bookRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SerializerInterface    $serializer
+        private readonly SerializerInterface    $serializer,
+        private readonly ValidationService      $validationService,
     )
     {
     }
@@ -78,6 +81,11 @@ class BookController extends AbstractController
         $authorId = $requestContent['author_id'] ?? -1;
         $newBook->setAuthor($this->authorRepository->find($authorId));
 
+        $validationResponse = $this->validationService->validateEntity($newBook);
+        if ($validationResponse !== null) {
+            return $validationResponse;
+        }
+
         $this->entityManager->persist($newBook);
         $this->entityManager->flush();
 
@@ -118,6 +126,11 @@ class BookController extends AbstractController
         $requestContent = $request->toArray();
         $authorId = $requestContent['author_id'] ?? -1;
         $bookToUpdate->setAuthor($this->authorRepository->find($authorId));
+
+        $validationResponse = $this->validationService->validateEntity($bookToUpdate);
+        if ($validationResponse !== null) {
+            return $validationResponse;
+        }
 
         $this->entityManager->flush();
 

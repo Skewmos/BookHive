@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Author;
 use App\Repository\AuthorRepository;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -13,6 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/authors')]
 class AuthorController extends AbstractController
@@ -24,7 +26,8 @@ class AuthorController extends AbstractController
     public function __construct(
         private readonly AuthorRepository $authorRepository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SerializerInterface $serializer
+        private readonly SerializerInterface $serializer,
+        private readonly ValidationService $validationService
     )
     {
     }
@@ -72,6 +75,11 @@ class AuthorController extends AbstractController
     {
         $newAuthor = $this->serializer->deserialize($request->getContent(), Author::class, 'json');
 
+        $validationResponse = $this->validationService->validateEntity($newAuthor);
+        if ($validationResponse !== null) {
+            return $validationResponse;
+        }
+
         $this->entityManager->persist($newAuthor);
         $this->entityManager->flush();
 
@@ -108,6 +116,11 @@ class AuthorController extends AbstractController
             'json',
             [AbstractNormalizer::OBJECT_TO_POPULATE => $authorToUpdate]
         );
+
+        $validationResponse = $this->validationService->validateEntity($authorToUpdate);
+        if ($validationResponse !== null) {
+            return $validationResponse;
+        }
 
         $this->entityManager->flush();
 
