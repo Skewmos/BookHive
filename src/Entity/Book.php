@@ -6,6 +6,7 @@ use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 class Book
@@ -18,6 +19,8 @@ class Book
 
     #[ORM\Column(length: 255)]
     #[Groups(['getBooks', 'getAuthors'])]
+    #[Assert\NotBlank(message: 'Title cannot be blank')]
+    #[Assert\Length(min:3, max: 255, maxMessage: 'Title cannot be longer than {{ limit }} characters')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
@@ -17,16 +18,21 @@ class Author
     #[Groups(['getBooks', 'getAuthors'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50)]
     #[Groups(['getBooks', 'getAuthors'])]
-    private ?string $lastName = null;
+    #[Assert\NotBlank(message: 'Last name cannot be blank')]
+    #[Assert\Length(min:3, max: 50, maxMessage: 'Last name cannot be longer than {{ limit }} characters')]
+    private string $lastName;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50)]
     #[Groups(['getBooks', 'getAuthors'])]
-    private ?string $firstName = null;
+    #[Assert\NotBlank(message: 'First name cannot be blank')]
+    #[Assert\Length(min:3, max: 50, maxMessage: 'First name cannot be longer than {{ limit }} characters')]
+    private string $firstName;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 40, nullable: true)]
     #[Groups(['getBooks', 'getAuthors'])]
+    #[Assert\Length(min:3, max: 40, maxMessage: 'Pseudonym cannot be longer than {{ limit }} characters')]
     private ?string $pseudonym = null;
 
     /**
