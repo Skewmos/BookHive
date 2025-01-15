@@ -1,3 +1,6 @@
+###> ide ###
+.idea
+###< ide ###
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -9,6 +12,6 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
-###> ide ###
-.idea
-###< ide ###
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
