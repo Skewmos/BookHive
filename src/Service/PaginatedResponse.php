@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-use Symfony\Component\Serializer\SerializerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 
 readonly final class PaginatedResponse
 {
@@ -12,13 +13,15 @@ readonly final class PaginatedResponse
 
     public function createResponse($items, $serializationGroups = []): array
     {
+        $context = SerializationContext::create();
+        $context->setGroups($serializationGroups);
+
         return [
             'items' => json_decode(
-                $this->serializer->serialize($items->getItems(),
-                    'json',
-                    [
-                        'groups' => $serializationGroups
-                    ]
+                $this->serializer->serialize(
+                    data: $items->getItems(),
+                    format: 'json',
+                    context: $context
                 ),
                 true
             ),

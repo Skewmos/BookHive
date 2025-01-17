@@ -4,11 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Book;
 use App\Enum\ApiMessageEnum;
+use App\Enum\CrudMessage\BookCrudMessageEnum;
 use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use App\Service\PaginatedResponse;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,17 +20,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api/books')]
 class BookController extends AbstractController
 {
-    private const BOOK_DELETED = 'Book deleted';
-    private const BOOK_NOT_FOUND = 'Book not found';
-    private const BOOK_UPDATED = 'Book updated';
-
     public function __construct(
         private readonly AuthorRepository       $authorRepository,
         private readonly BookRepository         $bookRepository,
@@ -73,10 +72,12 @@ class BookController extends AbstractController
             $book = $this->bookRepository->find($id);
 
             if (!$book) {
-                return new JsonResponse(data: ['message' => self::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
+                return new JsonResponse(data: ['message' => BookCrudMessageEnum::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
             }
+            $context = SerializationContext::create();
+            $context->setGroups(['getBooks']);
 
-            $jsonBook = $this->serializer->serialize($book, 'json', ['groups' => 'getBooks']);
+            $jsonBook = $this->serializer->serialize($book, 'json', $context);
 
             return new JsonResponse(data: $jsonBook, status: Response::HTTP_OK, headers: [], json: true);
         }catch (\Exception $e) {
@@ -94,7 +95,7 @@ class BookController extends AbstractController
              $book = $this->bookRepository->find($id);
 
              if (!$book) {
-                 return new JsonResponse(data: ['message' => self::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
+                 return new JsonResponse(data: ['message' => BookCrudMessageEnum::BOOK_NOT_FOUND], status: Response::HTTP_NOT_FOUND);
              }
 
              $this->cache->invalidateTags(["book_list"]);
@@ -102,7 +103,7 @@ class BookController extends AbstractController
              $this->entityManager->remove($book);
              $this->entityManager->flush();
 
-             return new JsonResponse(data: ['message' => self::BOOK_DELETED], status: Response::HTTP_OK);
+             return new JsonResponse(data: ['message' => BookCrudMessageEnum::BOOK_DELETED->value], status: Response::HTTP_OK);
          } catch (\Exception $e) {
              return new JsonResponse(
                  data: ['error' => ApiMessageEnum::API_MESSAGE_ERROR->value],
@@ -131,7 +132,10 @@ class BookController extends AbstractController
             $this->entityManager->persist($newBook);
             $this->entityManager->flush();
 
-            $jsonBook = $this->serializer->serialize($newBook, 'json', ['groups' => 'getBooks']);
+            $context = SerializationContext::create();
+            $context->setGroups(['getBooks']);
+
+            $jsonBook = $this->serializer->serialize($newBook, 'json', $context);
             $location = $urlGenerator->generate(
                 'api_book_detail',
                 ['id' => $newBook->getId()],
@@ -160,16 +164,18 @@ class BookController extends AbstractController
 
             if (!$bookToUpdate) {
                 return new JsonResponse(
-                    data: ['message' => self::BOOK_NOT_FOUND],
+                    data: ['message' => BookCrudMessageEnum::BOOK_NOT_FOUND->value],
                     status: Response::HTTP_NOT_FOUND
                 );
             }
+
+            $context = DeserializationContext::create()->setAttribute(AbstractNormalizer::OBJECT_TO_POPULATE, $bookToUpdate);
 
             $this->serializer->deserialize(
                 $request->getContent(),
                 Book::class,
                 'json',
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $bookToUpdate]
+                $context
             );
 
             $requestContent = $request->toArray();
@@ -188,7 +194,7 @@ class BookController extends AbstractController
             $this->entityManager->flush();
 
             return new JsonResponse(
-                data: ['message' => self::BOOK_UPDATED],
+                data: ['message' => BookCrudMessageEnum::BOOK_UPDATED->value],
                 status: Response::HTTP_OK
             );
         } catch (\Exception $e) {

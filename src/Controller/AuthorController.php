@@ -9,6 +9,9 @@ use App\Repository\AuthorRepository;
 use App\Service\PaginatedResponse;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +19,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -77,8 +79,11 @@ class AuthorController extends AbstractController
                 );
             }
 
+            $context = SerializationContext::create()->setGroups(['getAuthor']);
+            $jsonData = $this->serializer->serialize($author, 'json', $context);
+
             return new JsonResponse(
-                data: $this->serializer->normalize($author, null, ['getAuthor']),
+                data: $jsonData,
                 status: Response::HTTP_OK
             );
         } catch (\Exception $e) {
@@ -160,12 +165,13 @@ class AuthorController extends AbstractController
                     status: Response::HTTP_NOT_FOUND
                 );
             }
+            $context = DeserializationContext::create()->setAttribute(AbstractNormalizer::OBJECT_TO_POPULATE, $authorToUpdate);
 
             $this->serializer->deserialize(
                 $request->getContent(),
                 Author::class,
                 'json',
-                [AbstractNormalizer::OBJECT_TO_POPULATE => $authorToUpdate]
+                $context
             );
 
             $validationResponse = $this->validationService->validateEntity($authorToUpdate);
