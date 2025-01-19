@@ -7,9 +7,41 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
+#[Hateoas\Relation(
+    'self',
+    href: new Hateoas\Route(
+        'api_author_detail',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getAuthors'])
+)]
+#[Hateoas\Relation(
+    'create',
+    href: new Hateoas\Route(
+        'api_author_create',
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getAuthors'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
+#[Hateoas\Relation(
+    'update',
+    href: new Hateoas\Route(
+        'api_author_update',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getAuthors'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
+#[Hateoas\Relation(
+    'delete',
+    href: new Hateoas\Route(
+        'api_author_delete',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getAuthors'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
 class Author
 {
     #[ORM\Id]

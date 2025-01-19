@@ -5,10 +5,42 @@ namespace App\Entity;
 use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[Hateoas\Relation(
+    'self',
+    href: new Hateoas\Route(
+        'api_book_detail',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getBooks'])
+)]
+#[Hateoas\Relation(
+     'create',
+        href: new Hateoas\Route(
+            'api_book_create',
+        ),
+        exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
+#[Hateoas\Relation(
+    'update',
+    href: new Hateoas\Route(
+        'api_book_update',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
+#[Hateoas\Relation(
+    'delete',
+    href: new Hateoas\Route(
+        'api_book_delete',
+        parameters: ['id' => 'expr(object.getId())'],
+    ),
+    exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+)]
 class Book
 {
     #[ORM\Id]
