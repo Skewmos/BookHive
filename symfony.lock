@@ -1,4 +1,18 @@
 {
+    "api-platform/symfony": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.0",
+            "ref": "e9952e9f393c2d048f10a78f272cd35e807d972b"
+        },
+        "files": [
+            "config/packages/api_platform.yaml",
+            "config/routes/api_platform.yaml",
+            "src/ApiResource/.gitignore"
+        ]
+    },
     "doctrine/annotations": {
         "version": "2.0",
         "recipe": {
@@ -47,21 +61,6 @@
             "migrations/.gitignore"
         ]
     },
-    "jms/serializer-bundle": {
-        "version": "5.5",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "4.0",
-            "ref": "cc04e10cf7171525b50c18b36004edf64cb478be"
-        },
-        "files": [
-            "config/packages/jms_serializer.yaml"
-        ]
-    },
-    "knplabs/knp-paginator-bundle": {
-        "version": "v6.6.1"
-    },
     "lexik/jwt-authentication-bundle": {
         "version": "3.1",
         "recipe": {
@@ -74,17 +73,16 @@
             "config/packages/lexik_jwt_authentication.yaml"
         ]
     },
-    "nelmio/api-doc-bundle": {
-        "version": "4.36",
+    "nelmio/cors-bundle": {
+        "version": "2.5",
         "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
+            "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "3.0",
-            "ref": "c8e0c38e1a280ab9e37587a8fa32b251d5bc1c94"
+            "version": "1.5",
+            "ref": "6bea22e6c564fba3a1391615cada1437d0bde39c"
         },
         "files": [
-            "config/packages/nelmio_api_doc.yaml",
-            "config/routes/nelmio_api_doc.yaml"
+            "config/packages/nelmio_cors.yaml"
         ]
     },
     "symfony/console": {
@@ -166,18 +164,27 @@
             "config/routes/security.yaml"
         ]
     },
-    "symfony/translation": {
+    "symfony/twig-bundle": {
         "version": "7.2",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "6.3",
-            "ref": "e28e27f53663cc34f0be2837aba18e3a1bef8e7b"
+            "version": "6.4",
+            "ref": "cab5fd2a13a45c266d45a7d9337e28dee6272877"
         },
         "files": [
-            "config/packages/translation.yaml",
-            "translations/.gitignore"
+            "config/packages/twig.yaml",
+            "templates/base.html.twig"
         ]
+    },
+    "symfony/uid": {
+        "version": "7.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.0",
+            "ref": "0df5844274d871b37fc3816c57a768ffc60a43a5"
+        }
     },
     "symfony/validator": {
         "version": "7.2",
@@ -191,17 +198,8 @@
             "config/packages/validator.yaml"
         ]
     },
-    "willdurand/hateoas-bundle": {
-        "version": "2.7",
-        "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
-            "branch": "main",
-            "version": "2.0",
-            "ref": "34df072c6edaa61ae19afb2f3a239f272fecab87"
-        },
-        "files": [
-            "config/packages/bazinga_hateoas.yaml"
-        ]
+    "twig/extra-bundle": {
+        "version": "v3.18.0"
     },
     "zenstruck/foundry": {
         "version": "2.3",

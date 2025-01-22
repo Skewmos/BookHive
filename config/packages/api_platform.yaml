@@ -1,0 +1,11 @@
+api_platform:
+    title: BookHive API
+    version: 1.0.0
+    show_webby: false
+    formats:
+        json: [ 'application/json' ]
+        jsonld: [ 'application/ld+json' ]
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']

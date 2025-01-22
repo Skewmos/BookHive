@@ -2,65 +2,34 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\BookRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Hateoas\Configuration\Annotation as Hateoas;
-use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
-#[Hateoas\Relation(
-    'self',
-    href: new Hateoas\Route(
-        'api_book_detail',
-        parameters: ['id' => 'expr(object.getId())'],
-    ),
-    exclusion: new Hateoas\Exclusion(groups: ['getBooks'])
-)]
-#[Hateoas\Relation(
-     'create',
-        href: new Hateoas\Route(
-            'api_book_create',
-        ),
-        exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
-)]
-#[Hateoas\Relation(
-    'update',
-    href: new Hateoas\Route(
-        'api_book_update',
-        parameters: ['id' => 'expr(object.getId())'],
-    ),
-    exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
-)]
-#[Hateoas\Relation(
-    'delete',
-    href: new Hateoas\Route(
-        'api_book_delete',
-        parameters: ['id' => 'expr(object.getId())'],
-    ),
-    exclusion: new Hateoas\Exclusion(groups: ['getBooks'], excludeIf: 'expr(not is_granted("ROLE_ADMIN"))')
+#[ApiResource(
+    provider: 'App\State\BookStateProvider',
 )]
 class Book
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['getBooks', 'getAuthors'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['getBooks', 'getAuthors'])]
     #[Assert\NotBlank(message: 'Title cannot be blank')]
     #[Assert\Length(min:3, max: 255, maxMessage: 'Title cannot be longer than {{ limit }} characters')]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['getBooks'])]
     private ?string $coverText = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
-    #[Groups(['getBooks'])]
+    #[ApiProperty(readableLink: false)]
     private ?Author $author = null;
 
     public function getId(): ?int
