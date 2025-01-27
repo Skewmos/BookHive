@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto\Response;
+namespace App\Dto\Author\Response;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Author;

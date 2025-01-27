@@ -6,7 +6,7 @@ use ApiPlatform\Doctrine\Orm\Paginator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
-use App\Dto\Response\AuthorResponseDto;
+use App\Dto\Author\Response\AuthorResponseDto;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 readonly class AuthorStateProvider implements ProviderInterface
